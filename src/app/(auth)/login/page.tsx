@@ -181,3 +181,9 @@ export default function LoginPage() {
   )
 }
 
+// use this command to get the all dependencies
+// npm install next-auth framer-motion next zod @hookform/resolvers react-hook-form lucide-react
+// npx shadcn-ui@latest init
+// npx shadcn-ui@latest add button input card form
+// npx shadcn@latest init
+// npx shadcn@latest add button input card form
