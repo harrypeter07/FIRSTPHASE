@@ -103,6 +103,16 @@ ON public.job_seekers FOR UPDATE
 USING (auth.uid() = user_id);
 
 -- Allow insert for authenticated users
-CREATE POLICY "Allow insert for authenticated users" ON public.companies FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Allow insert for authenticated users" ON public.interviewers FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Allow insert for authenticated users" ON public.job_seekers FOR INSERT WITH CHECK (auth.role() = 'authenticated'); 
+-- CREATE POLICY "Allow insert for authenticated users" ON public.companies FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+-- CREATE POLICY "Allow insert for authenticated users" ON public.interviewers FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+-- CREATE POLICY "Allow insert for authenticated users" ON public.job_seekers FOR INSERT WITH CHECK (auth.role() = 'authenticated'); 
+
+-- Add these policies at the end of your create_tables.sql
+CREATE POLICY "Allow service role insert on companies"
+ON public.companies FOR INSERT TO service_role WITH CHECK (true);
+
+CREATE POLICY "Allow service role insert on interviewers"
+ON public.interviewers FOR INSERT TO service_role WITH CHECK (true);
+
+CREATE POLICY "Allow service role insert on job_seekers"
+ON public.job_seekers FOR INSERT TO service_role WITH CHECK (true);
