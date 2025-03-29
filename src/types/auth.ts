@@ -1,13 +1,12 @@
 export type UserRole = "company" | "interviewer" | "job_seeker";
 
-export interface BaseRegistrationData {
+export interface RegistrationData {
 	email: string;
 	password: string;
 	role: UserRole;
 }
 
-export interface CompanyRegistrationData extends BaseRegistrationData {
-	role: "company";
+export interface CompanyRegistrationData extends RegistrationData {
 	companyName: string;
 	industry: string;
 	companySize: string;
@@ -16,8 +15,7 @@ export interface CompanyRegistrationData extends BaseRegistrationData {
 	description?: string;
 }
 
-export interface InterviewerRegistrationData extends BaseRegistrationData {
-	role: "interviewer";
+export interface InterviewerRegistrationData extends RegistrationData {
 	fullName: string;
 	expertise: string[];
 	yearsOfExperience: number;
@@ -25,8 +23,7 @@ export interface InterviewerRegistrationData extends BaseRegistrationData {
 	linkedinProfile?: string;
 }
 
-export interface JobSeekerRegistrationData extends BaseRegistrationData {
-	role: "job_seeker";
+export interface JobSeekerRegistrationData extends RegistrationData {
 	fullName: string;
 	skills: string[];
 	experience?: string;
@@ -36,8 +33,3 @@ export interface JobSeekerRegistrationData extends BaseRegistrationData {
 	portfolioUrl?: string;
 	preferredRoles: string[];
 }
-
-export type RegistrationData =
-	| CompanyRegistrationData
-	| InterviewerRegistrationData
-	| JobSeekerRegistrationData;

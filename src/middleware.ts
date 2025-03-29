@@ -1,50 +1,39 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function middleware(req: NextRequest) {
-	const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-	const { pathname } = req.nextUrl;
+  const accessToken = req.cookies.get('sb-access-token')?.value;
 
-	// Public routes that don't require authentication
-	const publicRoutes = [
-		"/",
-		"/login",
-		"/register",
-		"/register/company",
-		"/register/interviewer",
-		"/register/job-seeker",
-	];
-	if (publicRoutes.includes(pathname)) {
-		return NextResponse.next();
-	}
+  if (!accessToken) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
 
-	// Protected routes check
-	if (!token && !pathname.startsWith("/register")) {
-		return NextResponse.redirect(new URL("/login", req.url));
-	}
+  const { data, error } = await supabase.auth.getUser(accessToken);
 
-	// Role-based route protection
-	if (token) {
-		const userRole = token.role as string;
+  if (error) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
 
-		if (pathname.startsWith("/dashboard")) {
-			// Check if user is accessing the correct dashboard based on their role
-			if (pathname.includes("/interviewer") && userRole !== "interviewer") {
-				return NextResponse.redirect(new URL("/dashboard", req.url));
-			}
-			if (pathname.includes("/company") && userRole !== "company") {
-				return NextResponse.redirect(new URL("/dashboard", req.url));
-			}
-			if (pathname.includes("/job-seeker") && userRole !== "job_seeker") {
-				return NextResponse.redirect(new URL("/dashboard", req.url));
-			}
-		}
-	}
+  const role = data.user?.user_metadata?.role;
 
-	return NextResponse.next();
+  if (req.nextUrl.pathname.startsWith('/dashboard/job-seeker') && role !== 'job_seeker') {
+    return NextResponse.redirect(new URL('/dashboard/interviewer', req.url));
+  }
+
+  if (req.nextUrl.pathname.startsWith('/dashboard/interviewer') && role !== 'interviewer') {
+    return NextResponse.redirect(new URL('/dashboard/job-seeker', req.url));
+  }
+
+  return NextResponse.next();
 }
 
+// Apply middleware to dashboard routes
 export const config = {
-	matcher: ["/", "/login", "/register/:path*", "/dashboard/:path*"],
+  matcher: ['/dashboard/:path*'],
 };
